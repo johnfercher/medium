@@ -1,3 +1,3 @@
-# Go + Chi
-Criando uma API Go com Chi
+# Go + Project Layout
+Organizando a casa com o Project Layout
 

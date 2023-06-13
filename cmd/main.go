@@ -5,12 +5,16 @@ import (
 	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/google/uuid"
+	"medium/m/v2/internal/db"
+	"medium/m/v2/internal/domain/entities"
+	"medium/m/v2/internal/domain/services"
 	"net/http"
 )
 
+var productService = services.NewProductService()
+
 func main() {
-	BuildDb()
+	db.Build()
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
@@ -25,16 +29,17 @@ func main() {
 
 // Endpoints
 func GetProductByIDHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	id, err := DecodeStringIDFromURI(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	product, ok := memoryDb[id]
-	if !ok {
-		err := errors.New("product_not_found")
-		http.Error(w, err.Error(), http.StatusNotFound)
+	product, err := productService.GetByID(ctx, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -42,39 +47,39 @@ func GetProductByIDHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SearchProductsHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	productType := DecodeTypeQueryString(r)
 
-	var matchedValues []*Product
-	for _, value := range memoryDb {
-		if value.Type == productType {
-			matchedValues = append(matchedValues, value)
-		}
-	}
-
-	WriteJsonResponse(w, matchedValues, http.StatusOK)
-}
-
-func CreateProductHandler(w http.ResponseWriter, r *http.Request) {
-	product, err := DecodeProductFromBody(r)
+	products, err := productService.Search(ctx, productType)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	id, err := uuid.NewUUID()
+	WriteJsonResponse(w, products, http.StatusOK)
+}
+
+func CreateProductHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	productToCreate, err := DecodeProductFromBody(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	idString := id.String()
-	product.ID = idString
-	memoryDb[idString] = product
+	product, err := productService.Create(ctx, productToCreate)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	WriteJsonResponse(w, product, http.StatusCreated)
 }
 
 func UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	id, err := DecodeStringIDFromURI(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -87,30 +92,30 @@ func UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product, ok := memoryDb[id]
-	if !ok {
-		err := errors.New("product_not_found")
-		http.Error(w, err.Error(), http.StatusNotFound)
+	productToUpdate.ID = id
+
+	product, err := productService.Update(ctx, productToUpdate)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	product.Type = productToUpdate.Type
-	product.Quantity = productToUpdate.Quantity
-	product.Name = productToUpdate.Name
-
-	memoryDb[id] = product
 
 	WriteJsonResponse(w, product, http.StatusOK)
 }
 
 func DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	id, err := DecodeStringIDFromURI(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	memoryDb[id] = nil
+	err = productService.Delete(ctx, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	WriteJsonResponse(w, nil, http.StatusNoContent)
 }
@@ -129,8 +134,8 @@ func DecodeTypeQueryString(r *http.Request) string {
 	return r.URL.Query().Get("type")
 }
 
-func DecodeProductFromBody(r *http.Request) (*Product, error) {
-	createProduct := &Product{}
+func DecodeProductFromBody(r *http.Request) (*entities.Product, error) {
+	createProduct := &entities.Product{}
 	err := json.NewDecoder(r.Body).Decode(&createProduct)
 	if err != nil {
 		return nil, err
