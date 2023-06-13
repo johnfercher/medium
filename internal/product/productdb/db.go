@@ -1,12 +1,13 @@
-package main
+package productdb
 
 import (
 	"fmt"
+	"medium/m/v2/internal/product/productdomain/productentities"
 )
 
-var memoryDb map[string]*Product
+var Memory map[string]*productentities.Product
 
-func BuildDb() {
+func Build() {
 	startProducts := make(map[string]string)
 	startProducts["Camisa do Grêmio"] = "clothing"
 	startProducts["Capim Dourado"] = "plant"
@@ -15,12 +16,12 @@ func BuildDb() {
 	startProducts["Bandana Dazaranha"] = "clothing"
 	startProducts["Motul 5w40"] = "oil"
 
-	memoryDb = make(map[string]*Product)
+	Memory = make(map[string]*productentities.Product)
 
 	i := 0
 	for product, productType := range startProducts {
 		id := fmt.Sprintf("%d", i)
-		memoryDb[id] = &Product{
+		Memory[id] = &productentities.Product{
 			ID:       id,
 			Name:     product,
 			Type:     productType,
