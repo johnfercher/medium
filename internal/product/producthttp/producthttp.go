@@ -12,7 +12,7 @@ import (
 
 var productService = productservices.New()
 
-func CreateProductAPI() {
+func Run() {
 	productdb.Build()
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)

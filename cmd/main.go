@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	producthttp.CreateProductAPI()
+	producthttp.Run()
 }
