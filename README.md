@@ -1,5 +1,5 @@
-# Go + Docker
-Dockerizando uma API
+# Go + MySQL
+Utilizando o GORM
 
 ## Build
 ```
