@@ -2,40 +2,30 @@ package productservices
 
 import (
 	"context"
-	"errors"
 	"github.com/google/uuid"
-	"medium/m/v2/internal/product/productdb"
 	"medium/m/v2/internal/product/productdomain/productentities"
+	"medium/m/v2/internal/product/productdomain/productrepositories"
 )
 
 type productService struct {
+	productRepository *productrepositories.ProductRepository
 }
 
 func New() *productService {
-	return &productService{}
-}
-
-func (p *productService) GetByID(_ context.Context, id string) (*productentities.Product, error) {
-	product, ok := productdb.Memory[id]
-	if !ok {
-		return nil, errors.New("product_not_found")
+	return &productService{
+		productRepository: productrepositories.New(),
 	}
-
-	return product, nil
 }
 
-func (p *productService) Search(_ context.Context, productType string) ([]*productentities.Product, error) {
-	var matchedValues []*productentities.Product
-	for _, value := range productdb.Memory {
-		if value.Type == productType {
-			matchedValues = append(matchedValues, value)
-		}
-	}
-
-	return matchedValues, nil
+func (p *productService) GetByID(ctx context.Context, id string) (*productentities.Product, error) {
+	return p.productRepository.GetByID(ctx, id)
 }
 
-func (p *productService) Create(_ context.Context, product *productentities.Product) (*productentities.Product, error) {
+func (p *productService) Search(ctx context.Context, productType string) ([]*productentities.Product, error) {
+	return p.productRepository.Search(ctx, productType)
+}
+
+func (p *productService) Create(ctx context.Context, product *productentities.Product) (*productentities.Product, error) {
 	id, err := uuid.NewUUID()
 	if err != nil {
 		return nil, err
@@ -43,28 +33,19 @@ func (p *productService) Create(_ context.Context, product *productentities.Prod
 
 	idString := id.String()
 	product.ID = idString
-	productdb.Memory[idString] = product
 
-	return product, nil
-}
-
-func (p *productService) Update(_ context.Context, productToUpdate *productentities.Product) (*productentities.Product, error) {
-	product, ok := productdb.Memory[productToUpdate.ID]
-	if !ok {
-		err := errors.New("product_not_found")
+	err = p.productRepository.Create(ctx, product)
+	if err != nil {
 		return nil, err
 	}
 
-	product.Type = productToUpdate.Type
-	product.Quantity = productToUpdate.Quantity
-	product.Name = productToUpdate.Name
-
-	productdb.Memory[productToUpdate.ID] = product
-
 	return product, nil
 }
 
-func (p *productService) Delete(_ context.Context, id string) error {
-	productdb.Memory[id] = nil
-	return nil
+func (p *productService) Update(ctx context.Context, product *productentities.Product) (*productentities.Product, error) {
+	return p.productRepository.Update(ctx, product)
+}
+
+func (p *productService) Delete(ctx context.Context, id string) error {
+	return p.productRepository.Delete(ctx, id)
 }
