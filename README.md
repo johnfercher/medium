@@ -1,12 +1,29 @@
-# Go + Repository + Command-Query Separation
-Preparando a API para o MySQL
+# Go + MySQL
+Docker-compose em ação
 
-## Build
+## run entire project
+```
+docker-compose up
+```
+
+## product-api
+### build
 ```
 docker build -t product-api .
 ```
 
-## Run
+### run
 ```
 docker run -p 8081:8081 product-api
+```
+
+## product-db
+### build
+```
+docker build -t product-db .
+```
+
+### run
+```
+docker run --volume=$HOME/datadir:/var/lib/mysql -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=supersecret -e MYSQL_DATABASE=ProductDb -e MYSQL_USER=AdminUser -e MYSQL_PASSWORD=AdminPassword product-db
 ```

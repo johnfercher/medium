@@ -7,10 +7,17 @@ import (
 	"net/http"
 )
 
-var productService = productservices.New()
+type ProductHttp struct {
+	productService *productservices.ProductService
+}
 
-// Endpoints
-func GetProductByIDHandler(w http.ResponseWriter, r *http.Request) {
+func New(productService *productservices.ProductService) *ProductHttp {
+	return &ProductHttp{
+		productService: productService,
+	}
+}
+
+func (p *ProductHttp) GetProductByIDHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	id, err := productdecode.DecodeStringIDFromURI(r)
@@ -19,7 +26,7 @@ func GetProductByIDHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product, err := productService.GetByID(ctx, id)
+	product, err := p.productService.GetByID(ctx, id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -28,11 +35,11 @@ func GetProductByIDHandler(w http.ResponseWriter, r *http.Request) {
 	encode.WriteJsonResponse(w, product, http.StatusOK)
 }
 
-func SearchProductsHandler(w http.ResponseWriter, r *http.Request) {
+func (p *ProductHttp) SearchProductsHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	productType := productdecode.DecodeTypeQueryString(r)
 
-	products, err := productService.Search(ctx, productType)
+	products, err := p.productService.Search(ctx, productType)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -41,7 +48,7 @@ func SearchProductsHandler(w http.ResponseWriter, r *http.Request) {
 	encode.WriteJsonResponse(w, products, http.StatusOK)
 }
 
-func CreateProductHandler(w http.ResponseWriter, r *http.Request) {
+func (p *ProductHttp) CreateProductHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	productToCreate, err := productdecode.DecodeProductFromBody(r)
@@ -50,7 +57,7 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product, err := productService.Create(ctx, productToCreate)
+	product, err := p.productService.Create(ctx, productToCreate)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -59,7 +66,7 @@ func CreateProductHandler(w http.ResponseWriter, r *http.Request) {
 	encode.WriteJsonResponse(w, product, http.StatusCreated)
 }
 
-func UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
+func (p *ProductHttp) UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	id, err := productdecode.DecodeStringIDFromURI(r)
@@ -76,7 +83,7 @@ func UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
 
 	productToUpdate.ID = id
 
-	product, err := productService.Update(ctx, productToUpdate)
+	product, err := p.productService.Update(ctx, productToUpdate)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -85,7 +92,7 @@ func UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
 	encode.WriteJsonResponse(w, product, http.StatusOK)
 }
 
-func DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
+func (p *ProductHttp) DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id, err := productdecode.DecodeStringIDFromURI(r)
 	if err != nil {
@@ -93,7 +100,7 @@ func DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = productService.Delete(ctx, id)
+	err = p.productService.Delete(ctx, id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

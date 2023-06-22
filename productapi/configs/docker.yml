@@ -1,0 +1,5 @@
+mysql:
+  url: "product-db:3306"
+  db: "ProductDb"
+  user: "AdminUser"
+  password: "AdminPassword"

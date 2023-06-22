@@ -7,6 +7,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o api cmd/main.go
 # stage imagem final
 FROM scratch
 WORKDIR /app
-COPY --from=build /app/api ./
+COPY --from=build /app ./
 EXPOSE 8081
-CMD [ "./api" ]
+CMD [ "./api", "env=docker" ]
