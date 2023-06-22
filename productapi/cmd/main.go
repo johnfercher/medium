@@ -3,13 +3,23 @@ package main
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"medium/m/v2/internal/product/productdb"
+	"medium/m/v2/internal/config"
+	"medium/m/v2/internal/mysql"
 	"medium/m/v2/internal/product/producthttp"
 	"net/http"
+	"os"
 )
 
 func main() {
-	productdb.Build()
+	cfg, err := config.Load(os.Args)
+	if err != nil {
+		panic(err)
+	}
+
+	err = mysql.Start(cfg.Mysql.Url, cfg.Mysql.Db, cfg.Mysql.User, cfg.Mysql.Password)
+	if err != nil {
+		panic(err)
+	}
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
