@@ -1,0 +1,46 @@
+version: '2'
+services:
+  product-db:
+    image: product-db
+    container_name: product-db
+
+    expose:
+      - '3306'
+    ports:
+      - "3306:3306"
+
+    environment:
+      MYSQL_ROOT_PASSWORD: supersecret
+      MYSQL_DATABASE: UserDb
+      MYSQL_USER: AdminUser
+      MYSQL_PASSWORD: AdminPassword
+
+    volumes:
+      - mysql:/var/lib/mysql
+
+    networks:
+      - prod
+
+
+
+  product-api:
+    image: product-api
+    container_name: product-api
+
+    expose:
+      - '8081'
+    ports:
+      - "8081:8081"
+
+    networks:
+      - prod
+
+    depends_on:
+      - product-db
+
+volumes:
+  mysql:
+
+networks:
+  prod:
+    driver: bridge
