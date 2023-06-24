@@ -1,5 +1,5 @@
-# Go + Docker
-Dockerizando uma API
+# Go + Repository + Command-Query Separation
+Preparando a API para o MySQL
 
 ## Build
 ```
