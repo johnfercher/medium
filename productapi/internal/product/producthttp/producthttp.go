@@ -7,17 +7,20 @@ import (
 	"net/http"
 )
 
-type ProductHttp struct {
-	productService *productservices.ProductService
+type ProductHttp interface {
 }
 
-func New(productService *productservices.ProductService) *ProductHttp {
-	return &ProductHttp{
+type productHttp struct {
+	productService productservices.ProductService
+}
+
+func New(productService productservices.ProductService) *productHttp {
+	return &productHttp{
 		productService: productService,
 	}
 }
 
-func (p *ProductHttp) GetProductByIDHandler(w http.ResponseWriter, r *http.Request) {
+func (p *productHttp) GetProductByIDHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	id, err := productdecode.DecodeStringIDFromURI(r)
@@ -35,7 +38,7 @@ func (p *ProductHttp) GetProductByIDHandler(w http.ResponseWriter, r *http.Reque
 	encode.WriteJsonResponse(w, product, http.StatusOK)
 }
 
-func (p *ProductHttp) SearchProductsHandler(w http.ResponseWriter, r *http.Request) {
+func (p *productHttp) SearchProductsHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	productType := productdecode.DecodeTypeQueryString(r)
 
@@ -48,7 +51,7 @@ func (p *ProductHttp) SearchProductsHandler(w http.ResponseWriter, r *http.Reque
 	encode.WriteJsonResponse(w, products, http.StatusOK)
 }
 
-func (p *ProductHttp) CreateProductHandler(w http.ResponseWriter, r *http.Request) {
+func (p *productHttp) CreateProductHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	productToCreate, err := productdecode.DecodeProductFromBody(r)
@@ -66,7 +69,7 @@ func (p *ProductHttp) CreateProductHandler(w http.ResponseWriter, r *http.Reques
 	encode.WriteJsonResponse(w, product, http.StatusCreated)
 }
 
-func (p *ProductHttp) UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
+func (p *productHttp) UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	id, err := productdecode.DecodeStringIDFromURI(r)
@@ -92,7 +95,7 @@ func (p *ProductHttp) UpdateProductHandler(w http.ResponseWriter, r *http.Reques
 	encode.WriteJsonResponse(w, product, http.StatusOK)
 }
 
-func (p *ProductHttp) DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
+func (p *productHttp) DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id, err := productdecode.DecodeStringIDFromURI(r)
 	if err != nil {

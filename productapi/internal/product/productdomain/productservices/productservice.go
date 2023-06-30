@@ -7,25 +7,33 @@ import (
 	"medium/m/v2/internal/product/productdomain/productrepositories"
 )
 
-type ProductService struct {
-	productRepository *productrepositories.ProductRepository
+type ProductService interface {
+	GetByID(ctx context.Context, id string) (*productentities.Product, error)
+	Search(ctx context.Context, productType string) ([]*productentities.Product, error)
+	Create(ctx context.Context, product *productentities.Product) (*productentities.Product, error)
+	Update(ctx context.Context, product *productentities.Product) (*productentities.Product, error)
+	Delete(ctx context.Context, id string) error
 }
 
-func New(productRepository *productrepositories.ProductRepository) *ProductService {
-	return &ProductService{
+type productService struct {
+	productRepository productrepositories.ProductRepository
+}
+
+func New(productRepository productrepositories.ProductRepository) *productService {
+	return &productService{
 		productRepository: productRepository,
 	}
 }
 
-func (p *ProductService) GetByID(ctx context.Context, id string) (*productentities.Product, error) {
+func (p *productService) GetByID(ctx context.Context, id string) (*productentities.Product, error) {
 	return p.productRepository.GetByID(ctx, id)
 }
 
-func (p *ProductService) Search(ctx context.Context, productType string) ([]*productentities.Product, error) {
+func (p *productService) Search(ctx context.Context, productType string) ([]*productentities.Product, error) {
 	return p.productRepository.Search(ctx, productType)
 }
 
-func (p *ProductService) Create(ctx context.Context, product *productentities.Product) (*productentities.Product, error) {
+func (p *productService) Create(ctx context.Context, product *productentities.Product) (*productentities.Product, error) {
 	id, err := uuid.NewUUID()
 	if err != nil {
 		return nil, err
@@ -42,7 +50,7 @@ func (p *ProductService) Create(ctx context.Context, product *productentities.Pr
 	return product, nil
 }
 
-func (p *ProductService) Update(ctx context.Context, product *productentities.Product) (*productentities.Product, error) {
+func (p *productService) Update(ctx context.Context, product *productentities.Product) (*productentities.Product, error) {
 	err := p.productRepository.Update(ctx, product)
 	if err != nil {
 		return nil, err
@@ -51,6 +59,6 @@ func (p *ProductService) Update(ctx context.Context, product *productentities.Pr
 	return product, nil
 }
 
-func (p *ProductService) Delete(ctx context.Context, id string) error {
+func (p *productService) Delete(ctx context.Context, id string) error {
 	return p.productRepository.Delete(ctx, id)
 }
