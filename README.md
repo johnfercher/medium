@@ -1,5 +1,5 @@
-# Go + Injeção de Dependência
-Árvore de Dependências, Inversão de Controle e Raiz de Composição
+# Go + Testes Unitários
+Libs, Nomenclaturas, Padrão AAA, Wrappers e Organização.
 
 ## run entire project
 ```

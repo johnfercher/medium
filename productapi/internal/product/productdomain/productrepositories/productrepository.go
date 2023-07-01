@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+//go:generate mockery --name ProductRepository
 type ProductRepository interface {
 	GetByID(_ context.Context, id string) (*productentities.Product, error)
 	Search(_ context.Context, productType string) ([]*productentities.Product, error)
