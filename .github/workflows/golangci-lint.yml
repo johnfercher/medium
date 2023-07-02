@@ -15,8 +15,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: change folder to productapi
-        run: cd productapi
+     #- name: change folder to productapi
+     #   run: cd productapi
 
       - uses: actions/setup-go@v4
         with:

@@ -16,8 +16,8 @@ jobs:
     name: publish
     runs-on: ubuntu-latest
     steps:
-      - name: Change folder to productapi
-        run: cd productapi
+      #- name: Change folder to productapi
+      #  run: cd productapi
 
       - name: Set up Go 1.13
         uses: actions/setup-go@v1

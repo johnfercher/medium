@@ -16,8 +16,8 @@ jobs:
     name: run
     runs-on: ubuntu-latest
     steps:
-      - name: Change folder to productapi
-        run: cd productapi
+      #- name: Change folder to productapi
+      #  run: cd productapi
 
       - uses: actions/checkout@v3
 
