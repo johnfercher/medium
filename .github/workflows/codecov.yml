@@ -25,11 +25,9 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v1
 
-      - name: Change folder to productapi
-        run: cd productapi
-
       - name: Get dependencies
         run: |
+          cd productapi && ls
           go get -v -t -d ./...
           if [ -f Gopkg.toml ]; then
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
