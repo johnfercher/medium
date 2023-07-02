@@ -27,7 +27,7 @@ jobs:
 
       - name: Get dependencies
         run: |
-          cd productapi && ls
+          cd productapi
           go get -v -t -d ./...
           if [ -f Gopkg.toml ]; then
               curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
@@ -36,7 +36,7 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          go test `go list ./... | grep -v examples` -coverprofile=coverage.txt -covermode=atomic
+          cd productapi && go test `go list ./... | grep -v examples` -coverprofile=coverage.txt -covermode=atomic
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v1.0.2
