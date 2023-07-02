@@ -42,6 +42,6 @@ jobs:
         uses: codecov/codecov-action@v1.0.2
         with:
           token: 3e2c0793-a032-4db2-b39e-6b503e04b5b4
-          file: ./coverage.txt
+          file: ./productapi/coverage.txt
           flags: unittests
           name: codecov-umbrella
