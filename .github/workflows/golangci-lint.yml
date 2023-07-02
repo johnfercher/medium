@@ -21,10 +21,8 @@ jobs:
           cache: false
       - uses: actions/checkout@v3
 
-      - name: Change folder to productapi/cmd
-        run: cd productapi && ls
-
       - name: golangci-lint
+        run: cd productapi
         uses: golangci/golangci-lint-action@v3
         with:
           # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
