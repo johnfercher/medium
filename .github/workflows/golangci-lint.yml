@@ -21,8 +21,8 @@ jobs:
           cache: false
       - uses: actions/checkout@v3
 
-      - name: Change folder
-        run: cd productapi
+      - name: Change folder to productapi/cmd
+        run: cd productapi/cmd
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
