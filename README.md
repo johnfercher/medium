@@ -1,5 +1,5 @@
-# Go + MySQL
-Docker-compose em ação
+# Go + Injeção de Dependência
+Árvore de Dependências, Inversão de Controle e Raiz de Composição
 
 ## run entire project
 ```

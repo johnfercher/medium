@@ -7,17 +7,25 @@ import (
 	"strings"
 )
 
-type ProductRepository struct {
+type ProductRepository interface {
+	GetByID(_ context.Context, id string) (*productentities.Product, error)
+	Search(_ context.Context, productType string) ([]*productentities.Product, error)
+	Create(_ context.Context, product *productentities.Product) error
+	Update(_ context.Context, productToUpdate *productentities.Product) error
+	Delete(_ context.Context, id string) error
+}
+
+type productRepository struct {
 	db *gorm.DB
 }
 
-func New(db *gorm.DB) *ProductRepository {
-	return &ProductRepository{
+func New(db *gorm.DB) *productRepository {
+	return &productRepository{
 		db: db,
 	}
 }
 
-func (p *ProductRepository) GetByID(_ context.Context, id string) (*productentities.Product, error) {
+func (p *productRepository) GetByID(_ context.Context, id string) (*productentities.Product, error) {
 	product := &productentities.Product{}
 
 	tx := p.db.Where("id = ?", id).First(product)
@@ -29,7 +37,7 @@ func (p *ProductRepository) GetByID(_ context.Context, id string) (*productentit
 	return product, nil
 }
 
-func (p *ProductRepository) Search(_ context.Context, productType string) ([]*productentities.Product, error) {
+func (p *productRepository) Search(_ context.Context, productType string) ([]*productentities.Product, error) {
 	limit := 100
 	products := []*productentities.Product{}
 
@@ -55,12 +63,12 @@ func (p *ProductRepository) Search(_ context.Context, productType string) ([]*pr
 	return products, nil
 }
 
-func (p *ProductRepository) Create(_ context.Context, product *productentities.Product) error {
+func (p *productRepository) Create(_ context.Context, product *productentities.Product) error {
 	tx := p.db.Create(product)
 	return tx.Error
 }
 
-func (p *ProductRepository) Update(_ context.Context, productToUpdate *productentities.Product) error {
+func (p *productRepository) Update(_ context.Context, productToUpdate *productentities.Product) error {
 	tx := p.db.Model(&productentities.Product{}).Where("id = ?", productToUpdate.ID).Updates(map[string]interface{}{
 		"name":     productToUpdate.Name,
 		"type":     productToUpdate.Type,
@@ -70,7 +78,7 @@ func (p *ProductRepository) Update(_ context.Context, productToUpdate *producten
 	return tx.Error
 }
 
-func (p *ProductRepository) Delete(_ context.Context, id string) error {
+func (p *productRepository) Delete(_ context.Context, id string) error {
 	tx := p.db.Where("id = ?", id).Delete(&productentities.Product{})
 	return tx.Error
 }
