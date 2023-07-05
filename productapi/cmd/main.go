@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"medium/m/v2/internal/config"
 	"medium/m/v2/internal/mysql"
+	"medium/m/v2/internal/observability/metrics"
 	"medium/m/v2/internal/product/productdomain/productrepositories"
 	"medium/m/v2/internal/product/productdomain/productservices"
 	"medium/m/v2/internal/product/producthttp"
@@ -35,6 +36,8 @@ func main() {
 	r.Post("/products", productHttp.CreateProductHandler)
 	r.Put("/products/{id}", productHttp.UpdateProductHandler)
 	r.Delete("/products/{id}", productHttp.DeleteProductHandler)
+
+	metrics.Start()
 
 	http.ListenAndServe(":8081", r)
 }

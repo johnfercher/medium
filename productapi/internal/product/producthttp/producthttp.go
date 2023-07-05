@@ -2,6 +2,7 @@ package producthttp
 
 import (
 	"medium/m/v2/internal/encode"
+	"medium/m/v2/internal/observability/metrics"
 	"medium/m/v2/internal/product/productdecode"
 	"medium/m/v2/internal/product/productdomain/productservices"
 	"net/http"
@@ -21,6 +22,7 @@ func New(productService productservices.ProductService) *productHttp {
 }
 
 func (p *productHttp) GetProductByIDHandler(w http.ResponseWriter, r *http.Request) {
+	metrics.Send()
 	ctx := r.Context()
 
 	id, err := productdecode.DecodeStringIDFromURI(r)
@@ -39,6 +41,7 @@ func (p *productHttp) GetProductByIDHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (p *productHttp) SearchProductsHandler(w http.ResponseWriter, r *http.Request) {
+	metrics.Send()
 	ctx := r.Context()
 	productType := productdecode.DecodeTypeQueryString(r)
 
@@ -52,6 +55,7 @@ func (p *productHttp) SearchProductsHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (p *productHttp) CreateProductHandler(w http.ResponseWriter, r *http.Request) {
+	metrics.Send()
 	ctx := r.Context()
 
 	productToCreate, err := productdecode.DecodeProductFromBody(r)
@@ -70,6 +74,7 @@ func (p *productHttp) CreateProductHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *productHttp) UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
+	metrics.Send()
 	ctx := r.Context()
 
 	id, err := productdecode.DecodeStringIDFromURI(r)
@@ -96,6 +101,7 @@ func (p *productHttp) UpdateProductHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *productHttp) DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
+	metrics.Send()
 	ctx := r.Context()
 	id, err := productdecode.DecodeStringIDFromURI(r)
 	if err != nil {
