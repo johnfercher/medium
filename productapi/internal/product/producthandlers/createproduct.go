@@ -17,7 +17,7 @@ type createProduct struct {
 
 func NewCreateProduct(service productservices.ProductService) *createProduct {
 	return &createProduct{
-		name:    "CreateProduct",
+		name:    "create_product",
 		pattern: "/products",
 		verb:    "POST",
 		service: service,

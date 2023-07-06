@@ -17,7 +17,7 @@ type searchProducts struct {
 
 func NewSearchProducts(service productservices.ProductService) *searchProducts {
 	return &searchProducts{
-		name:    "SearchProduct",
+		name:    "search_product",
 		pattern: "/products",
 		verb:    "GET",
 		service: service,

@@ -17,7 +17,7 @@ type updateProduct struct {
 
 func NewUpdateProduct(service productservices.ProductService) *updateProduct {
 	return &updateProduct{
-		name:    "UpdateProduct",
+		name:    "update_product",
 		pattern: "/products/{id}",
 		verb:    "PUT",
 		service: service,

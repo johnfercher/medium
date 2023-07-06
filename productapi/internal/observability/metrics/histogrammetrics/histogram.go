@@ -12,6 +12,8 @@ type Metric struct {
 	Labels map[string]string
 }
 
+var createdMetrics = make(map[string]prometheus.Histogram)
+
 func Observe(metric Metric) {
 	go func() {
 		opts := prometheus.HistogramOpts{
@@ -20,7 +22,13 @@ func Observe(metric Metric) {
 			Buckets:     []float64{0.1, 0.5, 1},
 			ConstLabels: metric.Labels,
 		}
-		reg := prometheus.NewRegistry()
-		promauto.With(reg).NewHistogram(opts).Observe(metric.Value)
+
+		if createdMetrics[metric.Name] == nil {
+			histogram := promauto.NewHistogram(opts)
+			createdMetrics[metric.Name] = histogram
+		}
+
+		histogram := createdMetrics[metric.Name]
+		histogram.Observe(metric.Value)
 	}()
 }

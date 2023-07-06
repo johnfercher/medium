@@ -17,7 +17,7 @@ type getProductByID struct {
 
 func NewGetProductByID(service productservices.ProductService) *getProductByID {
 	return &getProductByID{
-		name:    "GetByID",
+		name:    "get_product_by_id",
 		pattern: "/products/{id}",
 		verb:    "GET",
 		service: service,

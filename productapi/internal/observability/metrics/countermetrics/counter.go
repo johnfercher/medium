@@ -11,14 +11,26 @@ type Metric struct {
 	Labels map[string]string
 }
 
+var createdMetrics = make(map[string]*prometheus.CounterVec)
+
 func Increment(metric Metric) {
 	go func() {
-		opts := prometheus.CounterOpts{
-			Name:        metric.Name,
-			Help:        metric.Help,
-			ConstLabels: metric.Labels,
+		var labelKeys []string
+		for key, _ := range metric.Labels {
+			labelKeys = append(labelKeys, key)
 		}
-		reg := prometheus.NewRegistry()
-		promauto.With(reg).NewCounter(opts).Inc()
+
+		opts := prometheus.CounterOpts{
+			Name: metric.Name,
+			Help: metric.Help,
+		}
+
+		if createdMetrics[metric.Name] == nil {
+			counter := promauto.NewCounterVec(opts, labelKeys)
+			createdMetrics[metric.Name] = counter
+		}
+
+		counter := createdMetrics[metric.Name]
+		counter.With(metric.Labels).Inc()
 	}()
 }

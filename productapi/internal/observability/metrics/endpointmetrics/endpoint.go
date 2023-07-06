@@ -13,18 +13,12 @@ const (
 	verb         string = "verb"
 	pattern      string = "pattern"
 	failed       string = "failed"
-	error        string = "error"
-	responseCode string = "response_code"
+	responseCode string = "responseCode"
 
 	// Names
-	endpointRequestCounter string = "endpoint_request_counter"
-	endpointRequestLatency string = "endpoint_request_latency"
+	endpointRequestCounter string = "endpoint_%s_%s_request_counter"
+	endpointRequestLatency string = "endpoint_%s_%s_request_latency"
 )
-
-var description = map[string]string{
-	endpointRequestCounter: "Requests quantity",
-	endpointRequestLatency: "Requests latency",
-}
 
 type Metrics struct {
 	// Metric
@@ -48,17 +42,19 @@ func Send(metrics Metrics) {
 		responseCode: fmt.Sprintf("%d", metrics.ResponseCode),
 	}
 
+	caseResponse := "success"
+	if metrics.Failed {
+		caseResponse = "fail"
+	}
+
 	countermetrics.Increment(countermetrics.Metric{
-		Name:   endpointRequestCounter,
-		Help:   description[endpointRequestCounter],
+		Name:   fmt.Sprintf(endpointRequestCounter, caseResponse, metrics.Endpoint),
 		Labels: labels,
 	})
 
 	/*histogrammetrics.Observe(histogrammetrics.Metric{
-		Name:   endpointRequestLatency,
-		Help:   description[endpointRequestLatency],
-		Value:  float64(metrics.Latency),
-		Labels: labels,
+		Name:  fmt.Sprintf(endpointRequestLatency, caseResponse, metrics.Endpoint),
+		Value: float64(metrics.Latency),
 	})*/
 }
 

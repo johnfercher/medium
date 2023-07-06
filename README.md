@@ -9,12 +9,12 @@ docker-compose up
 ## product-api
 ### build
 ```
-docker build -t product-api .
+make build
 ```
 
 ### run
 ```
-docker run -p 8081:8081 product-api
+make run
 ```
 
 ## product-db

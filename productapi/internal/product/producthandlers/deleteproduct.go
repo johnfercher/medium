@@ -17,7 +17,7 @@ type deleteProduct struct {
 
 func NewDeleteProduct(service productservices.ProductService) *deleteProduct {
 	return &deleteProduct{
-		name:    "UpdateProduct",
+		name:    "delete_product",
 		pattern: "/products/{id}",
 		verb:    "DELETE",
 		service: service,
