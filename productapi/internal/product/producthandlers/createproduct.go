@@ -3,6 +3,7 @@ package producthandlers
 import (
 	"medium/m/v2/internal/api/apierror"
 	"medium/m/v2/internal/api/apiresponse"
+	"medium/m/v2/internal/chaos"
 	"medium/m/v2/internal/product/productdecode"
 	"medium/m/v2/internal/product/productdomain/productservices"
 	"net/http"
@@ -26,6 +27,7 @@ func NewCreateProduct(service productservices.ProductService) *createProduct {
 
 func (p *createProduct) Handle(r *http.Request) (apiresponse.ApiResponse, apierror.ApiError) {
 	ctx := r.Context()
+	chaos.Sleep(5, p.name)
 
 	productToCreate, err := productdecode.DecodeProductFromBody(r)
 	if err != nil {

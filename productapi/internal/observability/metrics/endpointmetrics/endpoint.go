@@ -4,66 +4,73 @@ import (
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"medium/m/v2/internal/observability/metrics/countermetrics"
+	"medium/m/v2/internal/observability/metrics/histogrammetrics"
 	"net/http"
 )
 
 const (
 	// Labels
-	endpoint     string = "endpoint"
-	verb         string = "verb"
-	pattern      string = "pattern"
-	failed       string = "failed"
-	responseCode string = "responseCode"
+	endpoint            string = "endpoint"
+	verb                string = "verb"
+	pattern             string = "pattern"
+	failed              string = "failed"
+	error               string = "error"
+	responseCode        string = "response_code"
+	isAvailabilityError        = "is_availability_error"
+	isReliabilityError         = "is_reliability_error"
 
 	// Names
-	endpointRequestCounter string = "endpoint_%s_%s_request_counter"
-	endpointRequestLatency string = "endpoint_%s_%s_request_latency"
+	endpointRequestCounter string = "endpoint_request_counter"
+	endpointRequestLatency string = "endpoint_request_latency"
 )
+
+var Helps = map[string]string{}
 
 type Metrics struct {
 	// Metric
-	Latency int64
+	Latency float64
 
 	// Labels
-	Endpoint     string
-	Verb         string
-	Pattern      string
-	Failed       bool
-	Error        string
-	ResponseCode int
+	Endpoint             string
+	Verb                 string
+	Pattern              string
+	ResponseCode         int
+	Failed               bool
+	Error                string
+	HasAvailabilityError bool
+	HasReliabilityError  bool
 }
 
 func Send(metrics Metrics) {
 	labels := map[string]string{
-		endpoint:     metrics.Endpoint,
-		verb:         metrics.Verb,
-		pattern:      metrics.Pattern,
-		failed:       fmt.Sprintf("%v", metrics.Failed),
-		responseCode: fmt.Sprintf("%d", metrics.ResponseCode),
-	}
-
-	caseResponse := "success"
-	if metrics.Failed {
-		caseResponse = "fail"
+		endpoint:            metrics.Endpoint,
+		verb:                metrics.Verb,
+		pattern:             metrics.Pattern,
+		responseCode:        fmt.Sprintf("%d", metrics.ResponseCode),
+		failed:              fmt.Sprintf("%v", metrics.Failed),
+		error:               metrics.Error,
+		isAvailabilityError: fmt.Sprintf("%v", metrics.HasAvailabilityError),
+		isReliabilityError:  fmt.Sprintf("%v", metrics.HasReliabilityError),
 	}
 
 	countermetrics.Increment(countermetrics.Metric{
-		Name:   fmt.Sprintf(endpointRequestCounter, caseResponse, metrics.Endpoint),
+		Name:   endpointRequestCounter,
 		Labels: labels,
 	})
 
-	/*histogrammetrics.Observe(histogrammetrics.Metric{
-		Name:  fmt.Sprintf(endpointRequestLatency, caseResponse, metrics.Endpoint),
-		Value: float64(metrics.Latency),
-	})*/
+	histogrammetrics.Observe(histogrammetrics.Metric{
+		Name:   endpointRequestLatency,
+		Value:  float64(metrics.Latency),
+		Labels: labels,
+	})
 }
 
 func Start() {
+	fmt.Println("starting prometheus")
 	http.Handle("/metrics", promhttp.Handler())
-
-	fmt.Println("start prometheus")
 
 	go func() {
 		http.ListenAndServe(":2112", nil)
 	}()
+	fmt.Println("started prometheus")
 }

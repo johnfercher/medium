@@ -34,7 +34,7 @@ func (m *metricsHandlerAdapter) execute(w http.ResponseWriter, r *http.Request) 
 
 	response, err := m.handler.Handle(r)
 
-	latency := time.Since(start).Milliseconds()
+	latency := time.Since(start).Seconds()
 	m.metrify(response, err, latency)
 
 	if err != nil {
@@ -45,7 +45,7 @@ func (m *metricsHandlerAdapter) execute(w http.ResponseWriter, r *http.Request) 
 	encode.WriteJsonResponse(w, response.Object(), response.Code())
 }
 
-func (m *metricsHandlerAdapter) metrify(response apiresponse.ApiResponse, err apierror.ApiError, latencyInMs int64) {
+func (m *metricsHandlerAdapter) metrify(response apiresponse.ApiResponse, err apierror.ApiError, latencyInMs float64) {
 	metrics := endpointmetrics.Metrics{
 		Latency:  latencyInMs,
 		Endpoint: m.handler.Name(),
@@ -57,6 +57,13 @@ func (m *metricsHandlerAdapter) metrify(response apiresponse.ApiResponse, err ap
 		metrics.Failed = true
 		metrics.Error = err.Name()
 		metrics.ResponseCode = err.Code()
+		if err.Code() >= 500 {
+			metrics.HasReliabilityError = false
+			metrics.HasAvailabilityError = true
+		} else {
+			metrics.HasReliabilityError = true
+			metrics.HasAvailabilityError = false
+		}
 	} else {
 		metrics.Failed = false
 		metrics.ResponseCode = response.Code()

@@ -3,6 +3,7 @@ package producthandlers
 import (
 	"medium/m/v2/internal/api/apierror"
 	"medium/m/v2/internal/api/apiresponse"
+	"medium/m/v2/internal/chaos"
 	"medium/m/v2/internal/product/productdecode"
 	"medium/m/v2/internal/product/productdomain/productservices"
 	"net/http"
@@ -26,6 +27,7 @@ func NewSearchProducts(service productservices.ProductService) *searchProducts {
 
 func (p *searchProducts) Handle(r *http.Request) (apiresponse.ApiResponse, apierror.ApiError) {
 	ctx := r.Context()
+	chaos.Sleep(150, p.name)
 	productType := productdecode.DecodeTypeQueryString(r)
 
 	products, err := p.service.Search(ctx, productType)
