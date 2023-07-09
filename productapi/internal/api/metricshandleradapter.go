@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type MetricsHandlerAdapter interface {
+type HandlerAdapter interface {
 	AdaptHandler() func(w http.ResponseWriter, r *http.Request)
 }
 

@@ -4,6 +4,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"medium/m/v2/internal/api"
+	"medium/m/v2/internal/chaos"
 	"medium/m/v2/internal/config"
 	"medium/m/v2/internal/mysql"
 	"medium/m/v2/internal/observability/metrics/endpointmetrics"
@@ -50,8 +51,10 @@ func main() {
 	deleteProductHandler := producthandlers.NewDeleteProduct(productService)
 	handlers = append(handlers, deleteProductHandler)
 
-	for _, handler := range handlers {
-		metricsAdapter := api.NewMetricsHandlerAdapter(handler)
+	for i, handler := range handlers {
+		chaosHttpAdapter := chaos.NewChaosHttpHandler(handler, float64(i*150))
+		metricsAdapter := api.NewMetricsHandlerAdapter(chaosHttpAdapter)
+
 		r.MethodFunc(handler.Verb(), handler.Pattern(), metricsAdapter.AdaptHandler())
 	}
 

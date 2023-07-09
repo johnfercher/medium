@@ -59,9 +59,11 @@ func Send(metrics Metrics) {
 	})
 
 	histogrammetrics.Observe(histogrammetrics.Metric{
-		Name:   endpointRequestLatency,
-		Value:  float64(metrics.Latency),
-		Labels: labels,
+		Name:  endpointRequestLatency,
+		Value: float64(metrics.Latency),
+		Labels: map[string]string{
+			endpoint: metrics.Endpoint,
+		},
 	})
 }
 
