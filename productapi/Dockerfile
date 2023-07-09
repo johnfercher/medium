@@ -2,7 +2,7 @@
 FROM golang:1.20 AS build
 WORKDIR /app
 COPY . /app
-RUN CGO_ENABLED=0 GOOS=linux go build -o api cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o api cmd/api/main.go
 
 # stage imagem final
 FROM scratch

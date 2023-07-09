@@ -1,38 +1,66 @@
 version: '3'
+
+networks:
+  metrics:
+    driver: bridge
+  transactional:
+    driver: bridge
+
+
 services:
   product-db:
     image: product-db
     container_name: product-db
-
     expose:
       - '3306'
     ports:
       - "3306:3306"
-
     environment:
       MYSQL_ROOT_PASSWORD: supersecret
       MYSQL_DATABASE: ProductDb
       MYSQL_USER: AdminUser
       MYSQL_PASSWORD: AdminPassword
-
     volumes:
-      - mysql:/var/lib/mysql
-
+      - ./productdb/mysql:/var/lib/mysql
     healthcheck:
       test: "exit 0"
+    networks:
+      - transactional
 
   product-api:
     image: product-api
     container_name: product-api
-
     expose:
       - '8081'
     ports:
       - "8081:8081"
-
     depends_on:
       product-db:
         condition: service_healthy
+    networks:
+      - metrics
+      - transactional
 
-volumes:
-  mysql:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    expose:
+      - '9090'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    networks:
+      - metrics
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    hostname: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    networks:
+      - metrics

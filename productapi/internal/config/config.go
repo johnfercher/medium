@@ -8,8 +8,7 @@ import (
 	"strings"
 )
 
-const localPath = "productapi/configs/%s.yml"
-const dockerPath = "configs/%s.yml"
+const filePath = "configs/%s.yml"
 
 type Config struct {
 	Env   string `yaml:"env"`
@@ -22,7 +21,7 @@ type Config struct {
 }
 
 func (c *Config) Print() {
-	fmt.Printf("env=%s, mysql.url=%s, mysql.db=%s, mysql.user=%s, mysql.password=%s\n", c.Env, c.Mysql.Url, c.Mysql.Db, c.Mysql.User, c.Mysql.Password)
+	fmt.Printf("loaded env=%s, mysql.url=%s, mysql.db=%s, mysql.user=%s, mysql.password=%s\n", c.Env, c.Mysql.Url, c.Mysql.Db, c.Mysql.User, c.Mysql.Password)
 }
 
 func Load(args []string) (*Config, error) {
@@ -31,13 +30,11 @@ func Load(args []string) (*Config, error) {
 		return nil, err
 	}
 
-	path := localPath
-	if env == "docker" {
-		path = dockerPath
-	}
+	fmt.Printf("loading config file from env=%s\n", env)
 
-	f, err := os.Open(fmt.Sprintf(path, env))
+	f, err := os.Open(fmt.Sprintf(filePath, env))
 	if err != nil {
+		fmt.Printf("could not load config file from env=%s\n", env)
 		return nil, err
 	}
 	defer f.Close()
@@ -46,6 +43,7 @@ func Load(args []string) (*Config, error) {
 	decoder := yaml.NewDecoder(f)
 	err = decoder.Decode(&cfg)
 	if err != nil {
+		fmt.Printf("could not parse config file from env=%s\n", env)
 		return nil, err
 	}
 
