@@ -1,5 +1,5 @@
-# Go + Testes Unitários
-Libs, Nomenclaturas, Padrão AAA, Wrappers e Organização.
+# Go + Integração Contínua
+Github Actions, Golangci-lint e Codecov
 
 ## run entire project
 ```
