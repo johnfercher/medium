@@ -1,0 +1,3 @@
+[submodule "medium-api"]
+	path = medium-api
+	url = https://github.com/johnfercher/medium-api
