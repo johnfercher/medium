@@ -1,5 +1,0 @@
-mysql:
-  url: "localhost:3306"
-  db: "ProductDb"
-  user: "AdminUser"
-  password: "AdminPassword"
